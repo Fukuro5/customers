@@ -1,0 +1,25 @@
+$fonts: (
+  main: 'Roboto, sans-serif',
+);
+
+$colors: (
+  white: #fff,
+  black: (
+    base: #000,
+    alpha-10: rgba(0, 0, 0, 0.1),
+    alpha-15: rgba(0, 0, 0, 0.15),
+    alpha-37: rgba(0, 0, 0, 0.37),
+    alpha-50: rgba(0, 0, 0, 0.5),
+  ),
+);
+
+$sizes: (
+  screen: (
+    xs: 425px,
+    sm: 768px,
+    md: 1024px,
+    lg: 1440px,
+    xl: 1920px,
+  ),
+  font-base: 14px,
+);

@@ -1,0 +1,10 @@
+# Dependency directories
+node_modules/
+
+# webpack config
+webpack
+
+# webpack build
+dist
+
+.DS_Store

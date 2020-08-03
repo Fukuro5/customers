@@ -1,0 +1,33 @@
+@import './variables.scss';
+
+@function font($font-name) {
+  @return var(--font-#{$font-name});
+}
+
+@function color($color-name, $color-variant:null) {
+  @if ($color-variant != null) {
+    @return var(--color-#{$color-name}-#{$color-variant});
+  }
+
+  @else {
+    $current-color: map-get($colors, $color-name);
+
+    @if (type-of($current-color) == "map") {
+      @return var(--color-#{$color-name}-base);
+    }
+
+    @else {
+      @return var(--color-#{$color-name});
+    }
+  }
+}
+
+@function size($size-name, $size-variant:null) {
+  @if ($size-variant != null) {
+    @return var(--size-#{$size-name}-#{$size-variant});
+  }
+
+  @else {
+    @return var(--size-#{$size-name});
+  }
+}

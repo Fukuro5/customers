@@ -1,0 +1,61 @@
+@import 'reset-css/sass/_reset.scss';
+@import url('https://fonts.googleapis.com/css?family=Roboto&display=swap');
+@import './variables.scss';
+
+:global {
+  html,
+  body,
+  #root {
+    font-family: font(main);
+    font-size: size(font-base);
+    height: 100%;
+  }
+
+  *,
+  ::after,
+  ::before {
+    box-sizing: border-box;
+  }
+
+  :root {
+    @each $name, $font in $fonts {
+      --font-#{$name}: #{$font};
+    }
+
+    @each $name, $color in $colors {
+      @if type-of($color) == "map" {
+        @each $subname, $subcolor in $color {
+          --color-#{$name}-#{$subname}: #{$subcolor};
+        }
+      }
+
+      @else {
+        --color-#{$name}: #{$color};
+      }
+    }
+
+    @each $name, $size in $sizes {
+      @if type-of($size) == "map" {
+        @each $subname, $subsize in $size {
+          --size-#{$name}-#{$subname}: #{$subsize};
+        }
+      }
+
+      @else if type-of($size) == "number" {
+        --size-#{$name}: #{$size};
+      }
+    }
+  }
+
+  .link {
+    color: color(sky);
+    text-decoration: none;
+  }
+
+  button {
+    cursor: pointer;
+    border: none;
+    outline: 0;
+    padding: 0;
+  }
+}

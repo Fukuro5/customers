@@ -1,0 +1,22 @@
+.button {
+  cursor: pointer;
+  height: 40px;
+  min-width: 170px;
+  border: none;
+  border-radius: 20px;
+  background: linear-gradient(270deg, #009dc7 0%, #4db698 100%);
+  box-shadow: 0 10px 15px 0 rgba(0, 0, 0, 0.1);
+  color: white;
+  font-size: 13px;
+  font-weight: bold;
+  padding: 0 20px;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  outline: none;
+
+  img,
+  svg {
+    margin-right: 10px;
+  }
+}
