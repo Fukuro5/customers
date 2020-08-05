@@ -4,7 +4,6 @@ import { connect } from 'react-redux';
 import { createSelector } from 'reselect'
 import { productDataSelector } from '@/services/selectors/products'
 import { addProducts } from '@/services/actions/products'
-import { config } from '@/utils/API'
 import { Header } from '@/components/index'
 import st from './styles.scss'
 

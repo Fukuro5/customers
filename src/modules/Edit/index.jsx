@@ -23,8 +23,16 @@ const selector = createSelector(
 )
 
 class Edit extends Component {
-  state = {
-    product: null
+  constructor(props) {
+    super(props)
+
+    this.discount = React.createRef()
+    this.customer = React.createRef()
+    this.product = React.createRef()
+
+    this.state = {
+      id: null
+    }
   }
 
   componentDidMount() {
@@ -42,42 +50,73 @@ class Edit extends Component {
 
   productChange = (event) => {
     this.setState({
-      product: event.target.value
+      id: event.target.value
     })
-    // console.log(event.target.value)
   }
 
   productSubmit = (e) => {
     e.preventDefault();
-    console.log(this.state.product)
-    // this.props.addInvoice(this.state.product)
-    // axios.post('/invoices', {
-    //   name: this.state.product
-    // })
+    let data = {
+      id: null,
+      name: null,
+      price: null
+    }
 
-    // axios.get('/invoices')
+    this.props.product.map((el) => {
+      if(el.id == this.state.id) {
+        data = {
+          id: el.id,
+          name: el.name,
+          price: el.price
+        }
+      }
+      else return null
+    })
+
+    this.props.addInvoice(data)
+  }
+
+  invoiceSave = (e) => {
+    e.preventDefault()
+
+    axios.post('/invoices', {
+      customer_id: this.customer.current.value,
+      discount: this.discount.current.value
+    })
+    console.log('g')
+    // console.log(this.selCust.current.value)
+    // axios.get('/invoices/1')
     //   .then(res => {
     //     console.log(res)
     //   })
   }
 
   render() {
+    let totalSum = 0
+    this.props.invoice.data.map((data) => {
+      totalSum += data.price
+    })
+    axios.get('/invoices')
+      .then(res => {
+        console.log(res)
+    })
     return (
       <>
         <Header />
         <section className={st.container}>
           <div className={st.head}>Edit Invoice</div>
-          <div className={st.subtitle}>Customer</div>
-          <select className={st.choose}>
-            {this.props.customer.map((data) => {
-              return (
-                <option key={data.name} className={st.op}>{data.name}</option>
-              )
-            })}
-          </select>
-          <div className={st.subtitle}>Add product</div>
-          <form onSubmit={this.productSubmit}>
-            <select className={st.choose} onChange={this.productChange}>
+          <form onSubmit={this.invoiceSave}>
+            <label>Discount(%)<input className={st.inDisc} type='text' ref={this.discount} /></label>
+            <div className={st.subtitle}>Customer</div>
+            <select className={st.choose} ref={this.customer}>
+              {this.props.customer.map((data) => {
+                return (
+                  <option key={data.name} defaultValue={0} className={st.op}>{data.name}</option>
+                )
+              })}
+            </select>
+            <div className={st.subtitle}>Add product</div>
+            <select className={st.choose} onChange={this.productChange} ref={this.product}>
               <option disabled>Select...</option>
               {this.props.product.map((data) => {
                 return (
@@ -85,28 +124,30 @@ class Edit extends Component {
                 )
               })}
             </select>
-            <input type="submit" value="Add" className={st.add} />
+            <button onClick={this.productSubmit} className={st.add}>Add</button>
+            <table className={st.listShop}>
+              <tbody>
+                <tr>
+                  <th id={st.name}>Name</th>
+                  <th>Price</th>
+                  <th>Quantity</th>
+                </tr>
+                {this.props.invoice.data.map((data) => {
+                  return (
+                    <tr key={data.id}>
+                      <td>{data.name}</td>
+                      <td>{data.price}</td>
+                      <td><input defaultValue="1" /></td>
+                    </tr>
+                  )
+                })}
+              </tbody>
+            </table>
+            <div className={st.total}>
+              Total: {totalSum.toFixed(2)}
+              <input type="submit" className={st.save} value="Save" />
+            </div>
           </form>
-          <table>
-            <tbody>
-              <tr>
-                <th>Name</th>
-                <th>Price</th>
-                <th>Quantity</th>
-              </tr>
-              <tr>
-                {/* <td>{this.props.invoice}</td> */}
-                <td>{this.state.product}</td>
-              </tr>
-              {/* {this.state.product.map((data) => {
-                return (
-                  <tr>
-                    <td>{data}</td>
-                  </tr>
-                )
-              })} */}
-            </tbody>
-          </table>
         </section>
       </>
     )
