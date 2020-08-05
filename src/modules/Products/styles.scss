@@ -1,0 +1,56 @@
+.container {
+  width: 80%;
+  margin: 0 auto;
+  font-size: 17px;
+}
+
+.content {
+  width: 100%;
+}
+
+.head {
+  color: #814aad;
+  margin: 2rem 1rem 2rem 0;
+  font-size: 30px;
+}
+
+.row {
+  display: flex;
+  margin: 1rem 1rem 1rem 0;
+  border-bottom: 2px solid #ddd;
+  padding-left: 1rem;
+  padding-bottom: 1rem;
+}
+
+.id {
+  border: 2px solid #ddd;
+  padding: 2rem;
+}
+
+.tr-content {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.name {
+  padding: 0 1rem 1rem 1rem;
+  font-size: 22px;
+  color: #919394;
+}
+
+.created-at {
+  padding: 0 1rem 0.5rem 1rem;
+  font-size: 16px;
+}
+
+.updated-at {
+  padding: 0 1rem 0.5rem 1rem;
+  font-size: 16px;
+}
+
+.price {
+  font-size: 16px;
+  color: #919394;
+  padding-right: 1rem;
+}

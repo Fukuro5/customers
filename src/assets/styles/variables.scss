@@ -21,5 +21,7 @@ $sizes: (
     lg: 1440px,
     xl: 1920px,
   ),
-  font-base: 14px,
+  font: (
+    base: 14px,
+  )
 );

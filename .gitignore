@@ -58,3 +58,5 @@ typings/
 dist
 
 .idea/
+
+*.sqlite

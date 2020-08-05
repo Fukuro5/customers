@@ -1,0 +1,1 @@
+export const customerDataSelector = (state) => state.customers.data 

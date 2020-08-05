@@ -1,0 +1,1 @@
+export const productDataSelector = (state) => state.products.data 

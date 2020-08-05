@@ -1,6 +1,10 @@
 import { combineReducers } from 'redux';
-import account from './account';
+import customers from './customers'
+import products from './products'
+import invoice from './invoice'
 
 export default combineReducers({
-  account,
+  customers,
+  products,
+  invoice,
 });

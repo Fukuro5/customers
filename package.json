@@ -1,17 +1,8 @@
 {
   "name": "react-redux-template",
   "version": "1.0.0",
-  "license": "MIT",
-  "author": "Andrey Khomutovskiy",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/GCoder-13/react-redux-template.git"
-  },
-  "bugs": {
-    "url": "https://github.com/GCoder-13/react-redux-template/issues"
-  },
-  "homepage": "https://github.com/GCoder-13/react-redux-template#readme",
   "scripts": {
+    "server": "node ./src/server.js",
     "build": "webpack --progress --config webpack/webpack.prod.js",
     "start": "webpack-dev-server --config webpack/webpack.dev.js",
     "js-lint": "eslint ./src",
@@ -20,8 +11,13 @@
   },
   "dependencies": {
     "@babel/runtime": "^7.9.6",
+    "axios": "^0.19.2",
+    "body-parser": "^1.19.0",
     "classnames": "^2.2.6",
+    "cors": "^2.8.5",
+    "express": "^4.17.1",
     "history": "^4.10.1",
+    "lodash": "^4.17.19",
     "prop-types": "^15.7.2",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
@@ -33,7 +29,9 @@
     "redux-actions": "^2.6.5",
     "redux-logger": "^3.0.6",
     "reselect": "^4.0.0",
-    "reset-css": "^5.0.1"
+    "reset-css": "^5.0.1",
+    "sequelize": "^6.3.4",
+    "sqlite3": "^5.0.0"
   },
   "devDependencies": {
     "@babel/core": "^7.9.6",
@@ -56,6 +54,7 @@
     "eslint-plugin-import": "^2.20.2",
     "eslint-plugin-jsx-a11y": "^6.2.3",
     "eslint-plugin-react": "^7.19.0",
+    "eslint-plugin-react-hooks": "^4.0.8",
     "file-loader": "^6.0.0",
     "html-webpack-plugin": "^4.3.0",
     "mini-css-extract-plugin": "^0.9.0",
