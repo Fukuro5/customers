@@ -6,15 +6,19 @@ import { customerDataSelector } from '@/services/selectors/customers'
 import { addCustomers } from '@/services/actions/customers'
 import { productDataSelector } from '@/services/selectors/products'
 import { addProducts } from '@/services/actions/products'
+import { invoiceDataSelector } from '@/services/selectors/invoice'
+import { addInvoice } from '@/services/actions/invoice'
 import { Header } from '@/components/index'
 import st from './styles.scss'
 
 const selector = createSelector(
   customerDataSelector,
   productDataSelector,
-  (customer, product) => ({
+  invoiceDataSelector,
+  (customer, product, invoice) => ({
     customer,
     product,
+    invoice,
   }),
 )
 
@@ -28,6 +32,10 @@ class Main extends Component {
       .then(res => {
         this.props.addProducts(res.data)
       })
+    axios.get('/invoices')
+      .then(res => {
+        this.props.addInvoice(res.data)
+    })
   }
 
   render() {
@@ -42,4 +50,5 @@ class Main extends Component {
 export default connect(selector, {
   addCustomers,
   addProducts,
+  addInvoice,
 })(Main)

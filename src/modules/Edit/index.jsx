@@ -1,13 +1,16 @@
 import React, { Component } from 'react'
 import axios from 'axios'
 import { connect } from 'react-redux';
+import { withRouter } from 'react-router-dom'
 import { createSelector } from 'reselect'
 import { customerDataSelector } from '@/services/selectors/customers'
 import { addCustomers } from '@/services/actions/customers'
 import { productDataSelector } from '@/services/selectors/products'
 import { addProducts } from '@/services/actions/products'
 import { invoiceDataSelector } from '@/services/selectors/invoice'
-import { addInvoice } from '@/services/actions/invoice'
+import { addInvoice, invoiceChange } from '@/services/actions/invoice'
+import { invoiceItemsDataSelector } from '@/services/selectors/invoiceItems'
+import { addInvoiceItems, changeProductQuantity } from '@/services/actions/invoiceItems'
 import { Header } from '@/components/index'
 import st from './styles.scss'
 
@@ -15,10 +18,12 @@ const selector = createSelector(
   customerDataSelector,
   productDataSelector,
   invoiceDataSelector,
-  (customer, product, invoice) => ({
+  invoiceItemsDataSelector,
+  (customer, product, invoice, invoiceItems) => ({
     customer,
     product,
     invoice,
+    invoiceItems,
   }),
 )
 
@@ -52,6 +57,16 @@ class Edit extends Component {
     this.setState({
       id: event.target.value
     })
+  
+    // this.props.product.map((el) => {
+    //   if(el.id == this.state.id) {
+    //     axios.post(`invoices/${this.props.match.params.id}/items`, {
+    //       invoice_id: this.props.match.params.id,
+    //       product_id: el.id,
+    //       quantity: 1
+    //     })
+    //   }
+    // })
   }
 
   productSubmit = (e) => {
@@ -62,56 +77,138 @@ class Edit extends Component {
       price: null
     }
 
+    // this.props.product.map((el) => {
+    //   if(el.id == this.state.id) {
+    //     axios.post(`invoices/${this.props.match.params.id}/items`, {
+    //       invoice_id: this.props.match.params.id,
+    //       product_id: el.id,
+    //       quantity: 1
+    //     })
+    //   }
+    // })
+
     this.props.product.map((el) => {
       if(el.id == this.state.id) {
         data = {
           id: el.id,
           name: el.name,
-          price: el.price
+          price: el.price,
+          quantity: 1,
         }
       }
       else return null
     })
 
-    this.props.addInvoice(data)
+    this.props.addInvoiceItems(data)
+    // this.props.addInvoiceItems(data)
+    // for(let i = 17; i < 27; i++) {
+    //   axios.delete(`invoices/${this.props.match.params.id}/items/${i}`)
+    // }
+    
+    // axios.get(`invoices/${this.props.match.params.id}/items`)
+    //   .then(res => {
+    //     res.data.map((data) => {
+    //       this.props.product.map((prod) => {
+    //         if(data.product_id == prod.id) {
+    //           console.log(prod)
+    //           dataProd = {
+    //             id: prod.id,
+    //             name: prod.name,
+    //             price: prod.price,
+    //           }
+    //         }
+    //         return null
+    //       })
+    //     })
+    // })
+    // console.log(dataProd)
+   
+    // this.props.addInvoiceItems(data)
+  }
+
+  deleteProduct = () => {
+
+  }
+
+  onDiscountChange = (e) => {
+    const arr = this.props.invoice.data
+    arr.forEach((data) => {
+      if(data.id == this.props.match.params.id) {
+        data.discount = +e.target.value
+      }
+    })
+    this.props.invoiceChange(arr)
+  }
+
+  onCustomerChange = (e) => {
+    const arr = this.props.invoice.data
+    arr.forEach((data) => {
+      if(data.id == this.props.match.params.id) {
+        data.customer_id = +e.target.value
+      }
+    })
+    this.props.invoiceChange(arr)
+  }
+
+  onTotalChange = (e) => {
+    const arr = this.props.invoice.data
+    arr.forEach((data) => {
+      if(data.id == this.props.match.params.id) {
+        data.total = +e
+      }
+    })
+    this.props.invoiceChange(arr)
+  }
+
+  onQuantityChange = (e, i) => {
+    const arr = this.props.invoiceItems.data;
+    arr[i] = {
+      ...arr[i],
+      quantity: +e.target.value
+    }
+    this.props.changeProductQuantity(arr)
   }
 
   invoiceSave = (e) => {
     e.preventDefault()
-
-    axios.post('/invoices', {
-      customer_id: this.customer.current.value,
-      discount: this.discount.current.value
+    this.props.invoiceItems.data.map((data) => {
+      axios.post(`invoices/${this.props.match.params.id}/items`, {
+        invoice_id: this.props.match.params.id,
+        product_id: data.id,
+        quantity: data.quantity
+      })
     })
-    console.log('g')
-    // console.log(this.selCust.current.value)
-    // axios.get('/invoices/1')
-    //   .then(res => {
-    //     console.log(res)
-    //   })
+
+    this.props.invoice.data.map((data) => {
+      if(data.id == this.props.match.params.id) {
+        axios.put(`invoices/${data.id}`, {
+          customer_id: data.customer_id,
+          discount: data.discount,
+          total: this.props.invoiceItems.total
+        })
+      }
+    })
+    this.props.history.goBack()
   }
 
   render() {
-    let totalSum = 0
-    this.props.invoice.data.map((data) => {
-      totalSum += data.price
-    })
-    axios.get('/invoices')
-      .then(res => {
-        console.log(res)
-    })
+    // console.log(this.props.invoiceItems)
     return (
       <>
         <Header />
         <section className={st.container}>
           <div className={st.head}>Edit Invoice</div>
           <form onSubmit={this.invoiceSave}>
-            <label>Discount(%)<input className={st.inDisc} type='text' ref={this.discount} /></label>
+            <label>Discount(%)<input className={st.inDisc} defaultValue={this.props.invoice.data.map((data) => {
+              if(data.id == this.props.match.params.id){
+                return data.discount
+              }
+            })} type='text' onChange={this.onDiscountChange} ref={this.discount} /></label>
             <div className={st.subtitle}>Customer</div>
-            <select className={st.choose} ref={this.customer}>
+            <select className={st.choose} onChange={this.onCustomerChange} ref={this.customer}>
               {this.props.customer.map((data) => {
                 return (
-                  <option key={data.name} defaultValue={0} className={st.op}>{data.name}</option>
+                  <option key={data.name} className={st.op} value={data.id}>{data.name}</option>
                 )
               })}
             </select>
@@ -131,20 +228,22 @@ class Edit extends Component {
                   <th id={st.name}>Name</th>
                   <th>Price</th>
                   <th>Quantity</th>
+                  <th></th>
                 </tr>
-                {this.props.invoice.data.map((data) => {
+                {this.props.invoiceItems.data.map((data, i) => {
                   return (
                     <tr key={data.id}>
                       <td>{data.name}</td>
                       <td>{data.price}</td>
-                      <td><input defaultValue="1" /></td>
+                      <td><input value={data.quantity} onChange={(e) => this.onQuantityChange(e, i)} /></td>
+                      <td><button className={st.delete} onClick={this.deleteProduct}>Delete</button></td>
                     </tr>
                   )
                 })}
               </tbody>
             </table>
             <div className={st.total}>
-              Total: {totalSum.toFixed(2)}
+              Total: {(this.props.invoiceItems.total).toFixed(2)}
               <input type="submit" className={st.save} value="Save" />
             </div>
           </form>
@@ -154,8 +253,13 @@ class Edit extends Component {
   }
 }
 
+const EditWithRouter = withRouter(Edit)
+
 export default connect(selector, {
   addCustomers,
   addProducts,
   addInvoice,
-})(Edit)
+  invoiceChange,
+  addInvoiceItems,
+  changeProductQuantity,
+})(EditWithRouter)

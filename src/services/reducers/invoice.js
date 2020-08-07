@@ -1,4 +1,4 @@
-import { addInvoice } from '@/services/actions/invoice'
+import { addInvoice, invoiceChange } from '@/services/actions/invoice'
 
 const initState = {
   data: []
@@ -9,11 +9,17 @@ export default (state = initState, { type, payload}) => {
     case `${addInvoice}`: 
       return {
         ...state,
-        data: [
-          ...state.data,
-          payload
-        ]
-    }
+        // data: [
+        //   ...state.data,
+        //   payload
+        // ]
+        data: payload
+      }
+    case `${invoiceChange}`:
+      return {
+        ...state,
+        data: payload
+      }
 
     default: return state
   }

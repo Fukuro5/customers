@@ -1,0 +1,1 @@
+export const invoiceItemsDataSelector = (state) => state.invoiceItems

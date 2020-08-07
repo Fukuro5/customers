@@ -1,0 +1,43 @@
+.container {
+  width: 80%;
+  margin: 0 auto;
+
+  th {
+    font-weight: bold;
+    padding: 1rem;
+    border-bottom: 2px solid #ddd;
+    text-align: left;
+  }
+
+  td {
+    padding: 1rem;
+    border-bottom: 1px solid #ddd;
+    text-align: left;
+  }
+}
+
+.invoices {
+  width: 100%;
+}
+
+.fl {
+  display: flex;
+  margin: 3rem 1rem 1rem 0;
+}
+
+.head {
+  font-size: 30px;
+  font-weight: bold;
+}
+
+#cust {
+  padding-right: 5rem;
+}
+
+.create {
+  background: none;
+  padding: 0.7rem 1rem;
+  border: 2px solid #cdcdcd;
+  border-radius: 10px;
+  margin-left: 2rem;
+}

@@ -8,7 +8,7 @@ class Header extends Component {
       <header className={st.header}>
         <div className={st.content}>
           <div className={st.head}>Invoice App</div>
-          <Link to={'/edit'} className={st.link}>Invoices</Link>
+          <Link to={'/'} className={st.link}>Invoices</Link>
           <Link to={'/products'} className={st.link}>Products</Link>
           <Link to={'/customers'} className={st.link}>Customers</Link>
         </div>
