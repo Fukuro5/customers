@@ -1,7 +1,7 @@
 import { addInvoice, invoiceChange } from '@/services/actions/invoice'
 
 const initState = {
-  data: []
+  data: null
 }
 
 export default (state = initState, { type, payload}) => {

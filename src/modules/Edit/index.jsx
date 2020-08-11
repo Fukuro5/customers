@@ -10,8 +10,9 @@ import { addProducts } from '@/services/actions/products'
 import { invoiceDataSelector } from '@/services/selectors/invoice'
 import { addInvoice, invoiceChange } from '@/services/actions/invoice'
 import { invoiceItemsDataSelector } from '@/services/selectors/invoiceItems'
-import { addInvoiceItems, changeProductQuantity } from '@/services/actions/invoiceItems'
+import { addInvoiceItems, loadInvoicesItems, changeProductQuantity, deleteInvoiceItems } from '@/services/actions/invoiceItems'
 import { Header } from '@/components/index'
+import { LoaderSvg } from '@/assets/icons/index'
 import st from './styles.scss'
 
 const selector = createSelector(
@@ -28,16 +29,9 @@ const selector = createSelector(
 )
 
 class Edit extends Component {
-  constructor(props) {
-    super(props)
-
-    this.discount = React.createRef()
-    this.customer = React.createRef()
-    this.product = React.createRef()
-
-    this.state = {
-      id: null
-    }
+  state = {
+    id: null,
+    isFetching: false
   }
 
   componentDidMount() {
@@ -51,32 +45,71 @@ class Edit extends Component {
         this.props.addProducts(res.data)
       })
     }
+
+    let data
+
+    axios.get(`invoices/${this.props.match.params.id}/items`)
+    .then(res => {
+      res.data.map(item => {
+        axios.get(`/products/${item.product_id}`)
+        .then(prod => {
+          data = {
+            id: prod.data.id,
+            name: prod.data.name,
+            price: prod.data.price,
+            quantity: item.quantity
+          }
+          this.props.loadInvoicesItems(data)
+        })
+      })
+    })
+  }
+
+  productAdd = () => {
+    let products = {
+      id: null,
+      name: null,
+      price: null,
+      quantity: 1
+    }
+    this.props.changeProductQuantity([])
+    axios.get(`invoices/${this.props.match.params.id}/items`)
+    .then(res => {
+      res.data.map(item => {
+        axios.get(`/products/${item.product_id}`)
+        .then(prod => {
+          products = {
+            id: prod.data.id,
+            name: prod.data.name,
+            price: prod.data.price,
+            quantity: item.quantity
+          }
+          this.props.addInvoiceItems(products)
+        })
+      })
+    })
   }
 
   productChange = (event) => {
     this.setState({
       id: event.target.value
     })
-  
-    // this.props.product.map((el) => {
-    //   if(el.id == this.state.id) {
-    //     axios.post(`invoices/${this.props.match.params.id}/items`, {
-    //       invoice_id: this.props.match.params.id,
-    //       product_id: el.id,
-    //       quantity: 1
-    //     })
-    //   }
-    // })
   }
 
   productSubmit = (e) => {
     e.preventDefault();
-    let data = {
-      id: null,
-      name: null,
-      price: null
-    }
-
+    this.setState({isFetching: true})
+    const currentProduct = this.props.product.find(prod => prod.id == this.state.id)
+    axios.post(`invoices/${this.props.match.params.id}/items`, {
+      invoice_id: this.props.match.params.id,
+      product_id: currentProduct.id,
+      quantity: 1
+    }).then(() => {
+      this.productAdd();
+      this.setState({isFetching: false})
+    })
+    
+    // console.log(a)
     // this.props.product.map((el) => {
     //   if(el.id == this.state.id) {
     //     axios.post(`invoices/${this.props.match.params.id}/items`, {
@@ -84,50 +117,23 @@ class Edit extends Component {
     //       product_id: el.id,
     //       quantity: 1
     //     })
+    //     .then(() => {
+    //       this.productAdd()
+    //     })
     //   }
     // })
-
-    this.props.product.map((el) => {
-      if(el.id == this.state.id) {
-        data = {
-          id: el.id,
-          name: el.name,
-          price: el.price,
-          quantity: 1,
-        }
-      }
-      else return null
-    })
-
-    this.props.addInvoiceItems(data)
-    // this.props.addInvoiceItems(data)
-    // for(let i = 17; i < 27; i++) {
-    //   axios.delete(`invoices/${this.props.match.params.id}/items/${i}`)
-    // }
-    
-    // axios.get(`invoices/${this.props.match.params.id}/items`)
-    //   .then(res => {
-    //     res.data.map((data) => {
-    //       this.props.product.map((prod) => {
-    //         if(data.product_id == prod.id) {
-    //           console.log(prod)
-    //           dataProd = {
-    //             id: prod.id,
-    //             name: prod.name,
-    //             price: prod.price,
-    //           }
-    //         }
-    //         return null
-    //       })
-    //     })
-    // })
-    // console.log(dataProd)
-   
-    // this.props.addInvoiceItems(data)
+    // this.productAdd()
   }
 
-  deleteProduct = () => {
-
+  deleteProduct = (e, i) => {
+    e.preventDefault()
+    axios.get(`invoices/${this.props.match.params.id}/items`)
+      .then(res => {
+        res.data.forEach(el => {
+          if(el.product_id == i) axios.delete(`invoices/${this.props.match.params.id}/items/${el.id}`)
+        })
+      })
+    this.props.deleteInvoiceItems(i)
   }
 
   onDiscountChange = (e) => {
@@ -141,6 +147,9 @@ class Edit extends Component {
   }
 
   onCustomerChange = (e) => {
+    axios.put(`invoices/${this.props.match.params.id}`, {
+      customer_id: e.target.value
+    })
     const arr = this.props.invoice.data
     arr.forEach((data) => {
       if(data.id == this.props.match.params.id) {
@@ -160,52 +169,48 @@ class Edit extends Component {
     this.props.invoiceChange(arr)
   }
 
-  onQuantityChange = (e, i) => {
+  onQuantityChange = (e, i, id) => {
     const arr = this.props.invoiceItems.data;
     arr[i] = {
       ...arr[i],
       quantity: +e.target.value
     }
     this.props.changeProductQuantity(arr)
-  }
-
-  invoiceSave = (e) => {
-    e.preventDefault()
-    this.props.invoiceItems.data.map((data) => {
-      axios.post(`invoices/${this.props.match.params.id}/items`, {
-        invoice_id: this.props.match.params.id,
-        product_id: data.id,
-        quantity: data.quantity
-      })
-    })
-
-    this.props.invoice.data.map((data) => {
-      if(data.id == this.props.match.params.id) {
-        axios.put(`invoices/${data.id}`, {
-          customer_id: data.customer_id,
-          discount: data.discount,
-          total: this.props.invoiceItems.total
+ 
+    const value = e.target.value
+    axios.get(`invoices/${this.props.match.params.id}/items`)
+      .then(res => {
+        res.data.forEach(item => {
+          if(item.product_id == id) {
+            axios.put(`invoices/${this.props.match.params.id}/items/${item.id}`, {
+              quantity: value
+            })
+          }
         })
-      }
     })
-    this.props.history.goBack()
   }
 
   render() {
-    // console.log(this.props.invoiceItems)
+    axios.put(`invoices/${this.props.match.params.id}`, {
+      total: this.props.invoiceItems.total
+    })
+
+    let disc
+    this.props.invoice.data.forEach((data) => {
+      if(data.id == this.props.match.params.id){
+        disc = data.discount
+      }
+    })
+
     return (
       <>
         <Header />
         <section className={st.container}>
           <div className={st.head}>Edit Invoice</div>
-          <form onSubmit={this.invoiceSave}>
-            <label>Discount(%)<input className={st.inDisc} defaultValue={this.props.invoice.data.map((data) => {
-              if(data.id == this.props.match.params.id){
-                return data.discount
-              }
-            })} type='text' onChange={this.onDiscountChange} ref={this.discount} /></label>
+          {/* <form onSubmit={this.productSubmit}> */}
+            <label>Discount(%)<input className={st.inDisc} defaultValue={disc} type='text' onChange={this.onDiscountChange} /></label>
             <div className={st.subtitle}>Customer</div>
-            <select className={st.choose} onChange={this.onCustomerChange} ref={this.customer}>
+            <select className={st.choose} onChange={this.onCustomerChange}>
               {this.props.customer.map((data) => {
                 return (
                   <option key={data.name} className={st.op} value={data.id}>{data.name}</option>
@@ -213,15 +218,17 @@ class Edit extends Component {
               })}
             </select>
             <div className={st.subtitle}>Add product</div>
-            <select className={st.choose} onChange={this.productChange} ref={this.product}>
-              <option disabled>Select...</option>
-              {this.props.product.map((data) => {
-                return (
-                  <option key={data.id} value={data.id}>{data.name}</option>
-                )
-              })}
-            </select>
-            <button onClick={this.productSubmit} className={st.add}>Add</button>
+            <div className={st.addBlock}>
+              <select className={st.choose} onChange={this.productChange}>
+                <option disabled>Select...</option>
+                {this.props.product.map((data,i) => {
+                  return (
+                    <option key={`${data.id}_${i}`} value={data.id}>{data.name}</option>
+                  )
+                })}
+              </select>
+              {this.state.isFetching ? <div className={st.loader}><LoaderSvg /></div> : <button onClick={this.productSubmit} className={st.add}>Add</button>}
+            </div>
             <table className={st.listShop}>
               <tbody>
                 <tr>
@@ -232,11 +239,11 @@ class Edit extends Component {
                 </tr>
                 {this.props.invoiceItems.data.map((data, i) => {
                   return (
-                    <tr key={data.id}>
+                    <tr key={`${data.id}_${i}`}>
                       <td>{data.name}</td>
                       <td>{data.price}</td>
-                      <td><input value={data.quantity} onChange={(e) => this.onQuantityChange(e, i)} /></td>
-                      <td><button className={st.delete} onClick={this.deleteProduct}>Delete</button></td>
+                      <td><input value={data.quantity} onChange={(e) => this.onQuantityChange(e, i, data.id)} /></td>
+                      <td><button className={st.delete} onClick={e => this.deleteProduct(e, data.id)}>Delete</button></td>
                     </tr>
                   )
                 })}
@@ -244,9 +251,8 @@ class Edit extends Component {
             </table>
             <div className={st.total}>
               Total: {(this.props.invoiceItems.total).toFixed(2)}
-              <input type="submit" className={st.save} value="Save" />
             </div>
-          </form>
+          {/* </form> */}
         </section>
       </>
     )
@@ -261,5 +267,7 @@ export default connect(selector, {
   addInvoice,
   invoiceChange,
   addInvoiceItems,
+  loadInvoicesItems,
   changeProductQuantity,
+  deleteInvoiceItems,
 })(EditWithRouter)

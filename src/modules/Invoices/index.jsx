@@ -1,4 +1,5 @@
 import React, { Component } from 'react'
+import { withRouter } from 'react-router-dom'
 import { Link } from 'react-router-dom'
 import axios from 'axios'
 import { connect } from 'react-redux';
@@ -10,7 +11,9 @@ import { addProducts } from '@/services/actions/products'
 import { invoiceDataSelector } from '@/services/selectors/invoice'
 import { addInvoice } from '@/services/actions/invoice'
 import { invoiceItemsDataSelector } from '@/services/selectors/invoiceItems'
+import { addInvoiceItems, loadInvoicesItems, changeProductQuantity } from '@/services/actions/invoiceItems'
 import { Header } from '@/components/index'
+import { LoaderSvg } from '@/assets/icons/index'
 import st from './styles.scss'
 
 const selector = createSelector(
@@ -36,10 +39,14 @@ class Invoices extends Component {
       .then(res => {
         this.props.addProducts(res.data)
       })
-    // axios.get('/invoices')
-    //   .then(res => {
-    //     this.props.addInvoice(res.data)
-    // })
+    axios.get('/invoices')
+      .then(res => {
+        this.props.addInvoice(res.data)
+    })
+    axios.get(`invoices/${this.props.match.params.id}/items`)
+      .then(res => {
+        this.props.changeProductQuantity([])
+    })
   }
 
 
@@ -51,11 +58,21 @@ class Invoices extends Component {
     })
     axios.get('/invoices')
       .then(res => {
-        this.props.addInvoice(res.data)
-    })
+        const last = res.data.length
+        const id = res.data[last - 1].id
+        this.props.history.push(`/invoices/${id+1}/edit`)
+      })
   }
 
   render() {
+    if(!this.props.invoice.data) {
+      return (
+        <div className={st.loader}>
+          <LoaderSvg />
+        </div>
+      )
+    }
+
     return (
       <>
       <Header />
@@ -77,10 +94,12 @@ class Invoices extends Component {
                 return (
                   <tr key={data.id}>
                     <td>{data.id}</td>
-                    <td>{data.customer_id}</td>
+                    <td>{this.props.customer.map(cust => {
+                      if(cust.id == data.customer_id) return cust.name
+                    })}</td>
                     <td>{data.discount}</td>
-                    <td>{(this.props.invoiceItems.total).toFixed(2)}</td>
-                    <td><Link to={`/invoices/${data.id}/edit`} style={{textDecoration: 'none'}}>edit</Link></td>
+                    <td>{(data.total).toFixed(2)}</td>
+                    <td><Link to={`/invoices/${data.id}/edit`}>edit</Link></td>
                   </tr>
                 )
               })}
@@ -92,8 +111,11 @@ class Invoices extends Component {
   }
 }
 
+const InvoicesWithRouter = withRouter(Invoices)
+
 export default connect(selector, {
   addCustomers,
   addProducts,
   addInvoice,
-})(Invoices)
+  changeProductQuantity,
+})(InvoicesWithRouter)

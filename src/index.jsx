@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { StrictMode } from 'react';
 import { render } from 'react-dom';
 import PropTypes from 'prop-types';
 import { Provider } from 'react-redux';
@@ -11,11 +11,13 @@ import '@/utils/API'
 import '@/assets/styles/main.scss';
 
 const Root = (props) => (
-  <Provider store={store}>
-    <Router history={history}>
-      { props.children }
-    </Router>
-  </Provider>
+  <StrictMode>
+    <Provider store={store}>
+      <Router history={history}>
+        { props.children }
+      </Router>
+    </Provider>
+  </StrictMode>
 );
 
 Root.propTypes = {

@@ -81,3 +81,18 @@
   border-radius: 10px;
   color: #fff;
 }
+
+.addBlock {
+  display: flex;
+  align-items: center;
+  svg {
+    width: 30px;
+  }
+}
+
+.addBlock .loader {
+  display: flex;
+  align-items: center;
+  height: 30px;
+  margin-left: 2rem;
+}
