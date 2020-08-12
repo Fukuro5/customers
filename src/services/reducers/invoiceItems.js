@@ -10,7 +10,7 @@ export default (state = initState, { type, payload}) => {
     case `${addInvoiceItems}`: {
       if(payload.id != state.data.map(item => item.id)) {
         return {
-          ...state,
+          // ...state,
           data: [
             ...state.data,
             payload

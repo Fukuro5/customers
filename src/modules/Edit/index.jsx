@@ -72,20 +72,25 @@ class Edit extends Component {
       price: null,
       quantity: 1
     }
-    this.props.changeProductQuantity([])
+
+    let lastId
     axios.get(`invoices/${this.props.match.params.id}/items`)
     .then(res => {
-      res.data.map(item => {
-        axios.get(`/products/${item.product_id}`)
-        .then(prod => {
-          products = {
-            id: prod.data.id,
-            name: prod.data.name,
-            price: prod.data.price,
-            quantity: item.quantity
-          }
-          this.props.addInvoiceItems(products)
-        })
+      lastId = res.data[res.data.length - 1].id
+      axios.get(`invoices/${this.props.match.params.id}/items/${lastId}`)
+      .then(last => {
+        console.log(last)
+        axios.get(`/products/${last.data.product_id}`)
+          .then(prod => {
+            console.log(prod)
+            products = {
+              id: prod.data.id,
+              name: prod.data.name,
+              price: prod.data.price,
+              quantity: last.data.quantity
+            }
+            this.props.addInvoiceItems(products)
+          })
       })
     })
   }
@@ -108,21 +113,6 @@ class Edit extends Component {
       this.productAdd();
       this.setState({isFetching: false})
     })
-    
-    // console.log(a)
-    // this.props.product.map((el) => {
-    //   if(el.id == this.state.id) {
-    //     axios.post(`invoices/${this.props.match.params.id}/items`, {
-    //       invoice_id: this.props.match.params.id,
-    //       product_id: el.id,
-    //       quantity: 1
-    //     })
-    //     .then(() => {
-    //       this.productAdd()
-    //     })
-    //   }
-    // })
-    // this.productAdd()
   }
 
   deleteProduct = (e, i) => {
@@ -207,7 +197,6 @@ class Edit extends Component {
         <Header />
         <section className={st.container}>
           <div className={st.head}>Edit Invoice</div>
-          {/* <form onSubmit={this.productSubmit}> */}
             <label>Discount(%)<input className={st.inDisc} defaultValue={disc} type='text' onChange={this.onDiscountChange} /></label>
             <div className={st.subtitle}>Customer</div>
             <select className={st.choose} onChange={this.onCustomerChange}>
@@ -252,7 +241,6 @@ class Edit extends Component {
             <div className={st.total}>
               Total: {(this.props.invoiceItems.total).toFixed(2)}
             </div>
-          {/* </form> */}
         </section>
       </>
     )
